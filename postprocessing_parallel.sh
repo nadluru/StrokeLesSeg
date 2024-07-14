@@ -10,5 +10,5 @@ python postprocessing_parallel.py \
                 
 folder_name='results/postprocessing_'$3'_'$2'_'$1'_'$4
 file_name=$method'_'$ref'_fold_'$5
-mkdir -p '/src/workspace/ATLAS3D/results/postprocessing'
-mv $folder_name'_'$file_name '/src/workspace/ATLAS3D/results/postprocessing'
+mkdir -p 'results/postprocessing'
+mv $folder_name'_'$file_name 'results/postprocessing'

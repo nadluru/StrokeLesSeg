@@ -12,9 +12,9 @@ do
         mkdir ${outputs[num]}'_def'_fold_$folder
         mkdir ${outputs[num]}'_dtk'_fold_$folder
         mkdir ${outputs[num]}'_res'_fold_$folder
-        cp ../atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_MSCSA_Depth_1_SGD__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_def'_fold_$folder
-        cp ../atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_800epochs_Loss_DiceTopK10_MSCSA_Depth_1_SGD__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_dtk'_fold_$folder
-        cp ../atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3__nnUNetPlans_FabiansResUNet_v2.1/fold_$folder/validation_raw/* ${outputs[num]}'_res'_fold_$folder
+        cp atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_MSCSA_Depth_1_SGD__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_def'_fold_$folder
+        cp atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_800epochs_Loss_DiceTopK10_MSCSA_Depth_1_SGD__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_dtk'_fold_$folder
+        cp atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3__nnUNetPlans_FabiansResUNet_v2.1/fold_$folder/validation_raw/* ${outputs[num]}'_res'_fold_$folder
     done
 
 done

@@ -70,7 +70,7 @@ parser.add_argument('-f', '--folder', type=str, default='original')
 args = parser.parse_args()
     
 
-labels = '/src/workspace/atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/labelsTr'
+labels = 'atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/labelsTr'
 
 folder_path = args.folder
 predictions = []

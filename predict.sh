@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
-export nnUNet_raw_data_base='/src/workspace/atlasv2/raw'
+export nnUNet_raw_data_base='atlasv2/raw'
 export nnUNet_preprocessed='preprocessed'
-export RESULTS_FOLDER='/src/workspace/atlasv2/results/'
+export RESULTS_FOLDER='atlasv2/results/'
 export CUDA_VISIBLE_DEVICES=7
 
-NNUNet_FOLDER="/src/workspace/ATLAS3D/nnUNet/nnunet/"
-NNUNet_DATA_FOLDER="/src/workspace/atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/imagesTs"
+NNUNet_FOLDER="nnUNet/nnunet/"
+NNUNet_DATA_FOLDER="atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/imagesTs"
 TASK100_NAME="Task100_ATLAS_v2"
 TASK103_NAME="Task103_ATLAS_v2_Self_Training"
 THREADS=16

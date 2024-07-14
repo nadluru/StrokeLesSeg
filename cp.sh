@@ -12,8 +12,8 @@ do
     do
         mkdir ${outputs[num]}'_def'_fold_$folder
         mkdir ${outputs[num]}'_foc'_fold_$folder
-        cp ../atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_def'_fold_$folder
-        cp ../atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_Focal__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_foc'_fold_$folder
+        cp atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_def'_fold_$folder
+        cp atlasv2/results/nnUNet/3d_fullres/${tasks[num]}/nnUNetTrainerV2_Focal__nnUNetPlansv2.1/fold_$folder/validation_raw/* ${outputs[num]}'_foc'_fold_$folder
     done
 
 done

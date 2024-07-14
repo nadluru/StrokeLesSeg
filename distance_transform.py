@@ -12,7 +12,7 @@ from nnUNet.nnunet.dataset_conversion.utils import generate_dataset_json
 
 
 if __name__ == '__main__':
-    base_path = '/src/workspace/atlasv2/raw/nnUNet_raw_data/Task110_ATLAS_v2_TwoDistance/'
+    base_path = 'atlasv2/raw/nnUNet_raw_data/Task110_ATLAS_v2_TwoDistance/'
     ref_path = os.path.join(base_path, 'labelsTr_2')
     label_path = os.path.join(base_path, 'labelsTr')
 

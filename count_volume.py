@@ -5,8 +5,7 @@ import scipy
 import scipy.ndimage
 
 
-# labels = '/src/workspace/atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/labelsTr'
-labels = '/src/workspace/atlasv2/raw/nnUNet_raw_data/Task150_MS/labelsTr'
+labels = 'atlasv2/raw/nnUNet_raw_data/Task150_MS/labelsTr'
 
 results = []
 # for sample in os.listdir(labels):

@@ -13,8 +13,8 @@ from nnUNet.nnunet.dataset_conversion.utils import generate_dataset_json
 if __name__ == '__main__':
     # input_path = '/src/workspace/StrokeLesionSegmentation/data'  # Path for the input
     # output_path = '/src/workspace/atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2'
-    input_path = '/src/workspace/ATLAS3D'  # Path for the input
-    output_path = '/src/workspace/atlasv2/raw/nnUNet_raw_data/Task103_ATLAS_v2_Self_Training'
+    input_path = '.'  # Path for the input
+    output_path = 'atlasv2/raw/nnUNet_raw_data/Task103_ATLAS_v2_Self_Training'
 
     # if os.path.exists(os.path.join(output_path, 'imagesTr')):
     #     shutil.rmtree(os.path.join(output_path, 'imagesTr'))
