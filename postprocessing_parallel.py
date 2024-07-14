@@ -1,0 +1,593 @@
+import os
+import scipy
+import scipy.ndimage
+# from settings import loader_settings
+import numpy as np
+import SimpleITK as sitk
+import shutil
+
+from pathlib import Path
+from batchgenerators.utilities.file_and_folder_operations import *
+from typing import Union, Tuple
+
+from multiprocessing import Pool
+# from nnunet.preprocessing.preprocessing import get_lowres_axis, get_do_separate_z, resample_data_or_seg
+
+def calculate_prob(softmax, lesion_component, total_volume,  mode='max'):
+    if mode == 'max':
+        return (softmax * lesion_component).max()
+    elif mode == 'mean':
+        return (softmax.astype(np.double) * lesion_component).sum() / total_volume
+
+# def add_lesion(threshold, determine_func, result, keyword = None):
+#     keep_count = 0
+#     labeled_lesions, num_lesions = scipy.ndimage.label(threshold.astype(bool))
+#     print(num_lesions)
+#     for idx_lesion in range(1, num_lesions + 1): 
+#         lesion_component = labeled_lesions == idx_lesion
+
+#         total_volume = lesion_component.sum()
+#         if determine_func(lesion_component, total_volume):
+#             result += lesion_component
+#             keep_count += 1
+    
+#     if keyword is not None:
+#         print("Kept {} of {} components in {} part".format(keep_count, num_lesions, keyword))
+    
+#     return result
+
+
+# def ensemble_by_threshold(softmax, softmax_ref, 
+#     volume_thresh=1000, prob_thresh=0.5, mode='mean', 
+#     mix_rate=0.5, verbose=True):
+
+#     softmax_ensemble = mix_rate * softmax + (1 - mix_rate) * softmax_ref
+
+#     thresh_ensemble_1 = softmax_ensemble > 0.5
+#     thresh_ref = softmax_ref > 0.5
+
+#     softmax_ensemble *= thresh_ensemble_1
+
+#     intersection = thresh_ensemble_1 * thresh_ref
+#     thresh_ensemble_only = thresh_ensemble_1 ^ intersection
+#     thresh_ref_only = thresh_ref ^ intersection
+
+#     thre_ensemble_2 = np.zeros(softmax.shape)
+
+#     # for lesions only in ensemble part, only keep the ones with volume <= volume threshold and prob of the mode >= prob threshold
+#     determine_func_ensemble_only = lambda lesion_component, total_volume: total_volume <= volume_thresh and calculate_prob(softmax_ensemble, lesion_component, total_volume, mode=mode) >= prob_thresh
+
+#     print(thresh_ensemble_only.sum())
+#     thre_ensemble_2 = add_lesion(thresh_ensemble_only, determine_func_ensemble_only, thre_ensemble_2, keyword='ensemble-only' if verbose else None)
+
+#     # for lesions shown in both ensemble and reference parts, keep the ones with volume > volume threshold or prob of the mode >= prob threshold
+#     determine_func_intersection = lambda lesion_component, total_volume: total_volume > volume_thresh or calculate_prob(softmax_ensemble, lesion_component, total_volume, mode=mode) >= prob_thresh
+
+#     thre_ensemble_2 = add_lesion(intersection, determine_func_intersection, thre_ensemble_2, keyword='intersection' if verbose else None)
+
+#     # for lesions shown in reference part, keep the ones with volume > volume threshold
+#     determine_func_ref_only = lambda lesion_thres_component, total_volume: total_volume > volume_thresh
+
+#     thre_ensemble_2 = add_lesion(thresh_ref_only, determine_func_ref_only, thre_ensemble_2, keyword='reference-only' if verbose else None)
+
+#     return thre_ensemble_2
+
+
+def ensemble_by_threshold(softmax, softmax_ref, 
+    volume_thresh=1000, prob_thresh=0.5, mode='mean', 
+    mix_rate=0.5, verbose=True):
+    softmax_ensemble = mix_rate * softmax + (1 - mix_rate) * softmax_ref
+    
+    thresh_ensemble = softmax_ensemble > 0.5
+    thresh_ref = softmax_ref > 0.5
+
+    softmax_ensemble *= thresh_ensemble
+
+    labeled_ensemble, num_lesions_ensemble = scipy.ndimage.label(thresh_ensemble.astype(bool))
+    labeled_ref, num_lesions_ref = scipy.ndimage.label(thresh_ref.astype(bool))
+    
+    thresh_ref_under = np.full(softmax.shape, False, dtype=bool)
+    remove_count = 0
+    for idx_lesion in range(1, num_lesions_ref + 1):
+        lesion_component = labeled_ref == idx_lesion
+        
+        total_volume = lesion_component.sum()
+        # for lesions in reference part, remove all the lesions with volume <= volume threshold
+        if total_volume <= volume_thresh:
+            thresh_ref = thresh_ref ^ lesion_component
+            thresh_ref_under = thresh_ref_under | lesion_component
+            remove_count += 1
+    
+    if verbose: print("Components removed in reference part: {} / {}".format(remove_count, num_lesions_ref))
+
+    remove_count = 0
+    for idx_lesion in range(1, num_lesions_ensemble + 1):
+        lesion_component = labeled_ensemble == idx_lesion
+
+        total_volume = lesion_component.sum()
+        # for lesions in ensemble part, first remove lesion with volume <= volume threshold and prob of the mode < prob threshold
+        if total_volume <= volume_thresh:
+            if calculate_prob(softmax_ensemble, lesion_component, total_volume, mode=mode) < prob_thresh:
+                thresh_ensemble = thresh_ensemble ^ lesion_component
+                remove_count += 1
+        # for lesion with volume > volume threshold, remove it if it does not have intersections with lesions in references that have volume <= volume threshold
+        else:
+            # thresh_ensemble = thresh_ensemble ^ lesion_component
+            # remove_count += 1
+            # if not (lesion_component & thresh_ref_under).max():
+            if not (lesion_component & thresh_ref_under).max() and calculate_prob(softmax_ensemble, lesion_component, total_volume, mode=mode) < prob_thresh:
+            # if not (lesion_component & thresh_ref).max():
+                thresh_ensemble = thresh_ensemble ^ lesion_component
+                remove_count += 1
+
+    if verbose: print("Components removed in ensemble part: {} / {}".format(remove_count, num_lesions_ensemble))
+
+    return thresh_ensemble | thresh_ref
+
+
+# def ensemble_by_threshold(softmax, softmax_ref, 
+#     volume_thresh=1000, prob_thresh=0.5, mode='mean', 
+#     mix_rate=0.5, verbose=True):
+
+#     softmax_ensemble = mix_rate * softmax + (1 - mix_rate) * softmax_ref
+    
+#     thresh_ensemble = softmax_ensemble > 0.5
+#     thresh_ref = softmax_ref > 0.5
+#     thresh_ref_higher = softmax_ref > 0.55
+
+#     softmax_ensemble *= thresh_ensemble
+
+#     labeled_ensemble, num_lesions_ensemble = scipy.ndimage.label(thresh_ensemble.astype(bool))
+#     labeled_ref, num_lesions_ref = scipy.ndimage.label(thresh_ref.astype(bool))
+#     labeled_ref_higher, num_lesions_ref_higher = scipy.ndimage.label(thresh_ref_higher.astype(bool))
+    
+#     thresh_ref_under = np.full(softmax.shape, False, dtype=bool)
+#     remove_count = 0
+#     for idx_lesion in range(1, num_lesions_ref + 1):
+#         lesion_component = labeled_ref == idx_lesion
+        
+#         total_volume = lesion_component.sum()
+#         # for lesions in reference part, remove all the lesions with volume <= volume threshold
+#         if total_volume <= volume_thresh:
+#             thresh_ref = thresh_ref ^ lesion_component
+#             thresh_ref_under = thresh_ref_under | lesion_component
+#             remove_count += 1
+#         else:
+#             intersection = lesion_component * labeled_ref_higher
+#             intersection_list = np.unique(intersection)
+#             num_intersection = len(intersection_list) - 1
+#             if verbose: print("intersections: {}".format(intersection_list))
+
+#             if  num_intersection >= 2:
+#                 to_be_removed = intersection.astype(bool) ^ lesion_component
+#                 thresh_ref = thresh_ref ^ to_be_removed
+
+#     if verbose: print("Components removed in reference part: {} / {}".format(remove_count, num_lesions_ref))
+
+#     remove_count = 0
+#     for idx_lesion in range(1, num_lesions_ensemble + 1):
+#         lesion_component = labeled_ensemble == idx_lesion
+
+#         total_volume = lesion_component.sum()
+#         # for lesions in ensemble part, first remove lesion with volume <= volume threshold and prob of the mode < prob threshold
+#         if total_volume <= volume_thresh:
+#             if calculate_prob(softmax_ensemble, lesion_component, total_volume, mode=mode) < prob_thresh:
+#                 thresh_ensemble = thresh_ensemble ^ lesion_component
+#                 remove_count += 1
+#         # for lesion with volume > volume threshold, remove it if it does not have intersections with lesions in references that have volume <= volume threshold
+#         else:
+#             # thresh_ensemble = thresh_ensemble ^ lesion_component
+#             # remove_count += 1
+#             if not (lesion_component & thresh_ref_under).max():
+#             # if not (lesion_component & thresh_ref).max():
+#                 thresh_ensemble = thresh_ensemble ^ lesion_component
+#                 remove_count += 1
+
+#     if verbose: print("Components removed in ensemble part: {} / {}".format(remove_count, num_lesions_ensemble))
+
+#     return thresh_ensemble | thresh_ref
+
+
+# def ensemble_by_threshold(softmax, softmax_ref, 
+#     volume_thresh=1000, prob_thresh=0.5, mode='log', 
+#     mix_rate=0.5, verbose=True):
+
+#     softmax_ensemble = mix_rate * softmax + (1 - mix_rate) * softmax_ref
+    
+#     thresh_ensemble = softmax_ensemble > 0.5
+#     thresh_ref = softmax_ref > 0.5
+
+#     softmax_ensemble *= thresh_ensemble
+
+#     labeled_ensemble, num_lesions_ensemble = scipy.ndimage.label(thresh_ensemble.astype(bool))
+#     labeled_ref, num_lesions_ref = scipy.ndimage.label(thresh_ref.astype(bool))
+    
+#     thresh_ref_under = np.full(softmax.shape, False, dtype=bool)
+#     remove_count = 0
+#     for idx_lesion in range(1, num_lesions_ref + 1):
+#         lesion_component = labeled_ref == idx_lesion
+        
+#         total_volume = lesion_component.sum()
+#         # for lesions in reference part, remove all the lesions with volume <= volume threshold
+#         if total_volume <= volume_thresh:
+#             thresh_ref = thresh_ref ^ lesion_component
+#             thresh_ref_under = thresh_ref_under | lesion_component
+#             remove_count += 1
+    
+#     if verbose: print("Components removed in reference part: {} / {}".format(remove_count, num_lesions_ref))
+
+#     remove_count = 0
+#     for idx_lesion in range(1, num_lesions_ensemble + 1):
+#         lesion_component = labeled_ensemble == idx_lesion
+
+#         total_volume = lesion_component.sum()
+#         # for lesions in ensemble part, first remove lesion with volume <= volume threshold and prob of the mode < prob threshold
+#         if total_volume <= volume_thresh:
+#             if mode == 'log':
+#                 # prob_volume_thresh = 0.5 + (1 - (np.log(total_volume) / np.log(volume_thresh))) * (prob_thresh - 0.5)
+#                 prob_volume_thresh = 1 - (np.log(total_volume) / np.log(volume_thresh)) * (1 - prob_thresh)
+#             elif mode == 'linear':
+#                 # prob_volume_thresh = 0.5 + (1 - (total_volume / volume_thresh)) * (prob_thresh - 0.5)
+#                 prob_volume_thresh = 1 - (total_volume / volume_thresh) * (1 - prob_thresh)
+#             print(prob_volume_thresh)
+
+#             if calculate_prob(softmax_ensemble, lesion_component, total_volume, mode='max') < prob_volume_thresh:
+#                 thresh_ensemble = thresh_ensemble ^ lesion_component
+#                 remove_count += 1
+#         # for lesion with volume > volume threshold, remove it if it does not have intersections with lesions in references that have volume <= volume threshold
+#         else:
+#             # thresh_ensemble = thresh_ensemble ^ lesion_component
+#             # remove_count += 1
+#             if not (lesion_component & thresh_ref_under).max():
+#             # if not (lesion_component & thresh_ref).max():
+#                 thresh_ensemble = thresh_ensemble ^ lesion_component
+#                 remove_count += 1
+
+#     if verbose: print("Components removed in ensemble part: {} / {}".format(remove_count, num_lesions_ensemble))
+
+#     return thresh_ensemble | thresh_ref
+
+
+def save_segmentation_nifti_from_softmax(args,
+                                         segmentation_softmax: Union[str, np.ndarray], out_fname: str,
+                                         properties_dict: dict, order: int = 1,
+                                         region_class_order: Tuple[Tuple[int]] = None,
+                                         seg_postprogess_fn: callable = None, seg_postprocess_args: tuple = None,
+                                         resampled_npz_fname: str = None,
+                                         non_postprocessed_fname: str = None, force_separate_z: bool = None,
+                                         interpolation_order_z: int = 0, verbose: bool = True):
+
+    if verbose: print("force_separate_z:", force_separate_z, "interpolation order:", order)
+
+    # first resample, then put result into bbox of cropping, then save
+    current_shape = segmentation_softmax[0].shape
+    shape_original_after_cropping = properties_dict[0].get('size_after_cropping')
+    shape_original_before_cropping = properties_dict[0].get('original_size_of_raw_data')
+    # current_spacing = dct.get('spacing_after_resampling')
+    # original_spacing = dct.get('original_spacing')
+
+    # if np.any([i != j for i, j in zip(np.array(current_shape[1:]), np.array(shape_original_after_cropping))]):
+    #     if force_separate_z is None:
+    #         if get_do_separate_z(properties_dict.get('original_spacing')):
+    #             do_separate_z = True
+    #             lowres_axis = get_lowres_axis(properties_dict.get('original_spacing'))
+    #         elif get_do_separate_z(properties_dict.get('spacing_after_resampling')):
+    #             do_separate_z = True
+    #             lowres_axis = get_lowres_axis(properties_dict.get('spacing_after_resampling'))
+    #         else:
+    #             do_separate_z = False
+    #             lowres_axis = None
+    #     else:
+    #         do_separate_z = force_separate_z
+    #         if do_separate_z:
+    #             lowres_axis = get_lowres_axis(properties_dict.get('original_spacing'))
+    #         else:
+    #             lowres_axis = None
+
+    #     if lowres_axis is not None and len(lowres_axis) != 1:
+    #         # this happens for spacings like (0.24, 1.25, 1.25) for example. In that case we do not want to resample
+    #         # separately in the out of plane axis
+    #         do_separate_z = False
+
+    #     if verbose: print("separate z:", do_separate_z, "lowres axis", lowres_axis)
+    #     seg_old_spacing = resample_data_or_seg(segmentation_softmax, shape_original_after_cropping, is_seg=False,
+    #                                            axis=lowres_axis, order=order, do_separate_z=do_separate_z,
+    #                                            order_z=interpolation_order_z)
+    #     # seg_old_spacing = resize_softmax_output(segmentation_softmax, shape_original_after_cropping, order=order)
+    # else:
+    #     if verbose: print("no resampling necessary")
+    #     seg_old_spacing = segmentation_softmax
+    
+    softmax_ref = segmentation_softmax[0]
+    seg_old_spacing = segmentation_softmax[1]
+    # todo
+    if region_class_order is None:
+        # seg_old_spacing = ensemble_by_threshold(
+        #     seg_old_spacing[1], softmax_ref[1], volume_thresh=args.volume, 
+        #     prob_thresh=args.prob, mode=args.mode, mix_rate=args.mix_rate, verbose=verbose
+        # )
+        seg_old_spacing = ensemble_by_threshold(
+            seg_old_spacing[1:].sum(axis=0), softmax_ref[1:].sum(axis=0), volume_thresh=args.volume, 
+            prob_thresh=args.prob, mode=args.mode, mix_rate=args.mix_rate, verbose=verbose
+        )
+
+        # num_fg = np.count_nonzero(seg_old_spacing)
+        # if verbose: print("Lesion area: {}".format(num_fg))
+        # if num_fg > args.volume:
+        #     tmp_big = 0.55
+        #     tmp_small = 0.5
+            
+        #     fg_softmax = softmax_ref[1]
+        #     fg_ones_thres_1 = fg_softmax > tmp_big
+        #     fg_ones_thres_2 = seg_old_spacing
+
+        #     labeled_fg, num_lesions_fg = scipy.ndimage.label(fg_ones_thres_1)
+        #     labeled_fg_2, num_lesions = scipy.ndimage.label(fg_ones_thres_2)
+
+        #     seg_remove_spacing = np.full(fg_softmax.shape, False, dtype=bool)
+        #     for idx_lesion in range(1, num_lesions+1):
+        #         lesion_thres2_component = labeled_fg_2 == idx_lesion
+
+        #         total_volume = lesion_thres2_component.sum()
+        #         if total_volume <= args.volume:
+        #             continue
+
+        #         intersection = lesion_thres2_component * labeled_fg
+        #         intersection_list = np.unique(intersection)
+        #         num_intersection = len(intersection_list) - 1
+        #         if verbose: print("intersections: {}".format(intersection_list))
+
+        #         if  num_intersection >= 2:
+        #             to_be_removed = intersection.astype(bool) ^ lesion_thres2_component
+        #             seg_old_spacing = seg_old_spacing ^ to_be_removed
+
+        # fg_softmax = seg_old_spacing[1]
+        # fg_ones_thres_1 = np.zeros(fg_softmax.shape)
+        # fg_ones_thres_2 = np.zeros(fg_softmax.shape)
+        # tmp_thresh = np.max(fg_softmax)*0.7
+        # num_fg = np.count_nonzero(fg_softmax>0.5)
+        # tmp_big = 0.55
+        # tmp_small = 0.45
+        # num_limit = True
+        # if verbose: print("Lesion area: {}".format(num_fg))
+        # if num_fg<3000:
+        #         tmp_big = 0.7
+        #         tmp_small = 0.5
+        # else:
+        #         tmp_big = 0.55
+        #         tmp_small = 0.5
+        #         num_limit = False
+        # #tmp_thresh #min(tmp_thresh,0.6)
+        # tmp_second = min(tmp_thresh,0.55)
+        # fg_ones_thres_1[fg_softmax > tmp_big] = 1 #get_thresh1_compnent(fg_softmax,0.6,0.5)#
+        # #fg_ones_thres_2[fg_softmax > 0.4] = 1
+        # fg_ones_thres_2[fg_softmax > tmp_small] = 1
+
+        # labeled_fg, num_lesions_fg = scipy.ndimage.label(fg_ones_thres_1.astype(bool))
+        # if verbose: print("The number of components: {}".format(num_lesions_fg))
+
+        # if num_lesions_fg >4 and num_limit:
+        #     component_size_dict = {}
+        #     for idx_lesion in range(1, num_lesions_fg+1):
+        #         lesion_thres_component = labeled_fg == idx_lesion
+        #         component_size_dict[idx_lesion] = np.sum(lesion_thres_component)
+        #     component_size_list_sorted = sorted(component_size_dict.items(), key=lambda kv:kv[1])
+        #     mean_prob = np.Inf
+        #     used_idx = 0
+        #     for idx in range(3): #search the block with smallest mean from min Top3 area blocks 
+        #         component_idx = component_size_list_sorted[idx][0]
+        #         lesion_thres_component = labeled_fg == component_idx
+        #         if np.sum(fg_softmax * lesion_thres_component)/ np.sum(lesion_thres_component) < mean_prob: 
+        #             mean_prob = np.mean(fg_softmax * lesion_thres_component)
+        #             used_idx = component_idx
+            
+        #     component_need_delete = labeled_fg == used_idx
+        #     fg_ones_thres_1 = fg_ones_thres_1 - component_need_delete
+        #     labeled_fg, num_lesions_fg = scipy.ndimage.label(fg_ones_thres_1.astype(bool))
+
+        # add_unlimit_blocks = np.zeros(fg_softmax.shape)
+        # if num_lesions_fg >=0:
+        #     if np.sum(fg_ones_thres_1) == 0:
+        #         tmp_thresh = np.max(fg_softmax) - 0.1
+        #         fg_ones_thres_tmp = np.zeros(fg_softmax.shape)
+        #         fg_ones_thres_tmp[fg_softmax > tmp_thresh] = 1
+        #         seg_old_spacing = fg_ones_thres_tmp
+
+        #     else:
+        #         fg_diff = fg_ones_thres_2 - fg_ones_thres_1
+        #         if np.sum(fg_diff) == 0:
+        #             fg_ones_thres_2 = np.zeros(fg_softmax.shape)
+        #             fg_ones_thres_2[fg_softmax > 0.3] = 1
+        #             fg_diff = fg_ones_thres_2 - fg_ones_thres_1
+
+        #         #labeled_fg_diff, num_lesions = scipy.ndimage.label(fg_diff.astype(bool))
+        #         labeled_fg_2, num_lesions = scipy.ndimage.label(fg_ones_thres_2.astype(bool))
+        #         if verbose: print("The number of connected-components in diff: {}".format(num_lesions))
+
+        #         find_point_flag = False
+        #         mark_one_voxel = None
+        #         max_area = 0
+        #         seg_add_spacing =  np.zeros(fg_softmax.shape)
+        #         for idx_lesion in range(1, num_lesions+1):
+        #             #lesion_diff_thres_component = labeled_fg_diff == idx_lesion
+        #             lesion_thres2_component = labeled_fg_2 == idx_lesion
+        #             intersection = np.zeros(fg_softmax.shape)
+        #             intersection = lesion_thres2_component*labeled_fg
+        #             num_intersection = len(np.unique(intersection))
+        #             if verbose: print("intersections: {}".format(np.unique(intersection)))
+                    
+        #             if  num_intersection>= 2:
+        #                 if num_intersection==2 or num_limit:
+        #                     seg_add_spacing = np.maximum(seg_add_spacing,lesion_thres2_component)
+        #                 continue
+        #             #continue
+        #             if num_limit:
+        #                 continue
+        #             add_unlimit_blocks += lesion_thres2_component
+        #             weight_area = np.sum(lesion_thres2_component*fg_softmax)
+
+        #             max_voxel_value = np.max(fg_softmax*lesion_thres2_component)
+
+        #             if weight_area<max_area:
+        #                 continue
+        #             max_area = weight_area
+        #             #fg_add_one_voxel = np.zeros(fg_softmax.shape)
+        #             #x,y,z = np.nonzero_idx(lesion_thres2_component)
+                    
+        #             #x, y, z = np.where(fg_softmax*lesion_thres2_component==max_voxel_value)
+        #             #fg_add_one_voxel[list(zip(x, y, z))[0]] = 1
+        #             fg_add_one_voxel = np.zeros(fg_softmax.shape)
+        #             fg_add_one_voxel[lesion_thres2_component>0] = 1
+        #             find_point_flag = True
+
+        #         if not num_limit:
+        #             fg_add_one_voxel = add_unlimit_blocks
+        #         if not find_point_flag:
+        #             seg_old_spacing = fg_ones_thres_1
+        #         else:
+        #             seg_old_spacing = fg_ones_thres_1 + fg_add_one_voxel
+        #         seg_old_spacing = np.maximum(seg_old_spacing, seg_add_spacing)
+
+    else:
+        seg_old_spacing_final = np.zeros(seg_old_spacing.shape[1:])
+        for i, c in enumerate(region_class_order):
+            seg_old_spacing_final[seg_old_spacing[i] > 0.7] = c
+        seg_old_spacing = seg_old_spacing_final
+
+    bbox = properties_dict[0].get('crop_bbox')
+
+    if bbox is not None:
+        seg_old_size = np.zeros(shape_original_before_cropping, dtype=np.uint8)
+        for c in range(3):
+            bbox[c][1] = np.min((bbox[c][0] + seg_old_spacing.shape[c], shape_original_before_cropping[c]))
+        seg_old_size[bbox[0][0]:bbox[0][1],
+        bbox[1][0]:bbox[1][1],
+        bbox[2][0]:bbox[2][1]] = seg_old_spacing
+    else:
+        seg_old_size = seg_old_spacing
+
+    seg_old_size_postprocessed = seg_old_size
+
+    seg_resized_itk = sitk.GetImageFromArray(seg_old_size_postprocessed.astype(np.uint8))
+    seg_resized_itk.SetSpacing(properties_dict[0]['itk_spacing'])
+    seg_resized_itk.SetOrigin(properties_dict[0]['itk_origin'])
+    seg_resized_itk.SetDirection(properties_dict[0]['itk_direction'])
+    sitk.WriteImage(seg_resized_itk, out_fname)
+
+
+def postprocessing(base_file_name, prediction_path, reference_path, args):
+    # prediction_nii_path = os.path.join(prediction_path, base_file_name + '.nii.gz')
+    prediction_pkl_path = os.path.join(prediction_path, base_file_name + '.pkl')
+    prediction_npz_path = os.path.join(prediction_path, base_file_name + '.npz')
+
+    reference_pkl_path = os.path.join(reference_path, base_file_name + '.pkl')
+    reference_npz_path = os.path.join(reference_path, base_file_name + '.npz')
+
+    softmax = np.load(prediction_npz_path)['softmax']
+    softmax_ref = np.load(reference_npz_path)['softmax']
+            
+    # for multilabel
+    if not args.folder.startswith('ensemble'):
+        bg_softmax = softmax[0:1]
+        fg_softmax = softmax[1:].sum(0, keepdims=True)
+        softmax = np.vstack([bg_softmax, fg_softmax])
+            
+    props = load_pickle(prediction_pkl_path)
+    props_ref = load_pickle(reference_pkl_path)
+    out_file = os.path.join(out_path, base_file_name + '.nii.gz')
+    regions_class_order = None
+
+    if isinstance(props, list):
+        props = props[0]
+    if isinstance(props_ref, list):
+        props_ref = props_ref[0]
+
+    softmax = [softmax_ref, softmax]
+    props = [props_ref, props]
+
+    save_segmentation_nifti_from_softmax(args, softmax, out_file, props, 3, regions_class_order, None, None, force_separate_z=None)
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--folder', help="input folder", required=True, type=str)
+    parser.add_argument('-r', '--reference', help="reference folder", required=True, type=str)
+    parser.add_argument('-p', '--prob', default=0.7, type=float)
+    parser.add_argument('-x', '--mix_rate', default=0.5, type=float)
+    parser.add_argument('-m', '--mode', default='max', type=str)
+    parser.add_argument('-v', '--volume', default=1000, type=int)
+    parser.add_argument('-t', '--threads', default=8, type=int)
+    args = parser.parse_args()
+
+    prediction_path = 'results/' + args.folder
+    reference_path = 'results/' + args.reference
+    out_path = 'results/postprocessing_{}_{}_{}_{}_{}_{}'.format(
+        args.volume, args.prob, args.mode, args.mix_rate, args.folder[:-7], args.reference)
+
+    # prediction_path = args.folder
+    # reference_path = args.reference
+    # out_path = 'postprocessing_{}_{}_{}_{}_{}_{}'.format(
+    #     args.volume, args.prob, args.mode, args.mix_rate, args.folder[:-7], args.reference)
+
+    # prediction_path = 'softmaxTr'
+    # out_path = 'softmaxTr_pp'
+    # # inp_path = loader_settings['InputPath']  # Path for the default input
+    # # out_path = loader_settings['OutputPath']  # Path for the default output
+
+    Path(out_path).mkdir(parents=True, exist_ok=True)
+
+    base_file_name_list = []
+    file_name_list = os.listdir(prediction_path)
+    for file_name in file_name_list:
+        if '.nii.gz' in file_name: # suffix is .nii.gz
+            base_file_name = file_name.split('.')[0]
+            base_file_name_list.append(base_file_name)
+
+    p = Pool(args.threads)
+    p.starmap(postprocessing, zip(base_file_name_list, [prediction_path] * len(base_file_name_list), [reference_path] * len(base_file_name_list), [args] * len(base_file_name_list)))
+    p.close()
+    p.join()
+
+    print("Done")
+
+    # if use_postprocessing_flag:
+    #     for file_name in file_name_list:
+    #         if '.nii.gz' in file_name: # suffix is .nii.gz
+
+    #             split = file_name.split('_')[:3] + ['label-L', 'mask']
+    #             out_folder = os.path.join(out_path, split[0], split[1], 'anat')
+    #             Path(out_folder).mkdir(parents=True, exist_ok=True)
+    #             out_file = os.path.join(out_folder, '_'.join(split) + '.nii.gz')
+
+    #             base_file_name = file_name.split('.')[0]
+    #             prediction_nii_path = os.path.join(prediction_path, base_file_name + '.nii.gz')
+    #             prediction_pkl_path = os.path.join(prediction_path, base_file_name + '.pkl')
+    #             prediction_npz_path = os.path.join(prediction_path, base_file_name + '.npz')
+
+    #             softmax = np.load(prediction_npz_path)['softmax']
+    #             props = load_pickle(prediction_pkl_path)
+    #             # out_file = os.path.join(out_path, file_name)
+    #             regions_class_order = None
+
+    #             save_segmentation_nifti_from_softmax(softmax, out_file, props[0], 3, regions_class_order, None, None, force_separate_z=None)
+
+    # else:
+    #     for file_name in file_name_list:
+    #         if '.nii.gz' in file_name: # suffix is .nii.gz
+
+    #             split = file_name.split('_')[:3] + ['label-L', 'mask']
+    #             out_folder = os.path.join(out_path, split[0], split[1], 'anat')
+    #             Path(out_folder).mkdir(parents=True, exist_ok=True)
+    #             out_file = os.path.join(out_folder, '_'.join(split) + '.nii.gz')
+                
+                
+    #             shutil.copyfile(os.path.join(prediction_path, file_name), os.path.join(out_path, out_file))
+    #             # shutil.copyfile(os.path.join(prediction_path, file_name), os.path.join(out_path, file_name))
+
+    #         # else: # suffix is not .nii.gz
+    #         #     base_file_name = file_name.split('.')[0]
+    #         #     prediction_sitk_img = sitk.ReadImage(os.path.join(prediction_path, base_file_name + '.nii.gz'))
+    #         #     sitk.WriteImage(prediction_sitk_img, os.path.join(out_path, file_name))
+
+    # print("Done")
