@@ -42,7 +42,7 @@ python $NNUNet_FOLDER"inference/predict_simple.py" -i $NNUNet_DATA_FOLDER -o pre
 python $NNUNet_FOLDER"inference/predict_simple.py" -i $NNUNet_DATA_FOLDER -o predictions/t100_res_fold3 -tr nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3 -p nnUNetPlans_FabiansResUNet_v2.1 --num_threads_preprocessing $THREADS --num_threads_nifti_save $THREADS -t $TASK100_NAME -m 3d_fullres -f 3 -z
 python $NNUNet_FOLDER"inference/predict_simple.py" -i $NNUNet_DATA_FOLDER -o predictions/t100_res_fold4 -tr nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3 -p nnUNetPlans_FabiansResUNet_v2.1 --num_threads_preprocessing $THREADS --num_threads_nifti_save $THREADS -t $TASK100_NAME -m 3d_fullres -f 4 -z
 
-python ensemble_predictions.py --npz -t $THREADS -o predictions/ensemble \
+python ensemble_predictions_multilabel.py --npz -t $THREADS -o predictions/ensemble \
     -f predictions/t100_def_fold0 predictions/t100_def_fold1 predictions/t100_def_fold2 predictions/t100_def_fold3 predictions/t100_def_fold4 \
     predictions/t100_dtk_fold0 predictions/t100_dtk_fold1 predictions/t100_dtk_fold2 predictions/t100_dtk_fold3 predictions/t100_dtk_fold4 \
     predictions/t100_res_fold0 predictions/t100_res_fold1 predictions/t100_res_fold2 predictions/t100_res_fold3 predictions/t100_res_fold4

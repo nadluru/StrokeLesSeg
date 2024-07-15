@@ -4,6 +4,7 @@ parallel --jobs 3 -k --bar \
     ::: 1000 \
     ::: 0 1 2 3 4 \
     ::: max \
-    ::: ensemble_t104_def+foc ensemble_t110_def+foc
+    ::: ensemble_t104_def+foc ensemble_t110_def+foc \
+    t104_def t104_foc t110_def t110_foc
 
 python run_parallel.py -f results/postprocessing_single
