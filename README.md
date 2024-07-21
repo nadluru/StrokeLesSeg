@@ -1,13 +1,13 @@
 # Stroke Lesion Segmentation on Anatomical Tracings of Lesions After Stroke Segmentation (ATLAS) V2.0 Dataset
-This repository is developed from the [submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission) of Team CTRL in the 2022 MICCAI ATLAS Challenge.
+This repository is based on the [submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission) by Team CTRL in the 2022 MICCAI ATLAS Challenge.
 
-This repository contains the implementation of the following papers:
+This repository includes the implementation of the following papers:
 Segmenting Small Stroke Lesions with Novel Labeling Strategies
 Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention
 
 ## Docker Environment
 
-Our code is supposed to run in the docker environment. Before start, please create the docker image using the following command:
+The code is designed to run in a Docker environment. To get started, create the Docker image using the following command:
 
 ```
 bash build.sh
@@ -15,7 +15,7 @@ bash build.sh
 
 ## Environment Variables
 
-Our code resets several default environment variables from nnUNet. Please make sure to set the following environment variables for each bash files you created.
+Our code customizes several default environment variables from nnUNet. Ensure to set the following environment variables in each bash script you create:
 
 ```
 export nnUNet_raw_data_base='atlasv2/raw/'
@@ -25,13 +25,34 @@ export RESULTS_FOLDER='atlasv2/results/'
 
 ## Dataset Preparation
 
-### Default dataset
+### Default Dataset
 
-The default dataset can be created from the unzipped ATLAS v2.0 dataset using the following command. Before running it, please make use the change the input path in `convert.py` accordingly.
+To create the default dataset from the unzipped ATLAS v2.0 dataset, use the following command. Prior to running it, update the input path in `convert.py` as necessary:
 
 ```
 python convert.py
 ```
+
+### Multi-Size Labeling (MSL) Dataset
+
+After the default dataset is created. The MSL dataset can be generated using the following command:
+
+```
+cp -r atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/ atlasv2/raw/nnUNet_raw_data/Task104_ATLAS_v2_Multilabel/
+cp -r atlasv2/raw/nnUNet_raw_data/Task104_ATLAS_v2_Multilabel/labelsTr/ atlasv2/raw/nnUNet_raw_data/Task104_ATLAS_v2_Multilabel/labelsTr_2/
+python multilabel.py
+```
+
+### Distance-Based Labeling (DBL) Dataset
+
+To generate the DBL dataset after creating the default dataset, use the following commands:
+
+```
+cp -r atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/ atlasv2/raw/nnUNet_raw_data/Task110_ATLAS_v2_TwoDistance/
+cp -r atlasv2/raw/nnUNet_raw_data/Task110_ATLAS_v2_TwoDistance/labelsTr/ atlasv2/raw/nnUNet_raw_data/Task110_ATLAS_v2_TwoDistance/labelsTr_2/
+python distance_transform.py
+```
+
 
 
 
