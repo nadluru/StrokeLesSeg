@@ -1,9 +1,14 @@
 # Stroke Lesion Segmentation on Anatomical Tracings of Lesions After Stroke Segmentation (ATLAS) V2.0 Dataset
-The repository is developed from the [submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission) of Team CTRL in the 2022 MICCAI ATLAS Challenge.
+This repository is developed from the [submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission) of Team CTRL in the 2022 MICCAI ATLAS Challenge.
 
-[Paper](https://arxiv.org/abs/2211.15486) | [Weights](#model)
+This repository contains the implementation of the following papers:
+Segmenting Small Stroke Lesions with Novel Labeling Strategies
+Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention
 
-![Figure](./figures/atlas_r2_framework.png)
+## Training
+
+Our code is supposed to run in the docker environment. Before start, please create the docker image using the following command:
+`bash build.sh`
 
 ## Model Weights <span id="model"></span>
 Download nnUNet model weights from [here](https://emckclac-my.sharepoint.com/:f:/g/personal/k21066681_kcl_ac_uk/EnR3LgIE5D5En1c2vSlzPkgBnzKJJ8Cly_2T56srvbu67A) and put them in `nnUNet_trained_models` folder.
