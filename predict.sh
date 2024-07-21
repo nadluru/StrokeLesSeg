@@ -2,7 +2,7 @@
 # SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 export nnUNet_raw_data_base='atlasv2/raw'
-export nnUNet_preprocessed='preprocessed'
+export nnUNet_preprocessed='/opt/algorithm/preprocessed'
 export RESULTS_FOLDER='atlasv2/results/'
 export CUDA_VISIBLE_DEVICES=7
 
