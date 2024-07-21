@@ -169,7 +169,7 @@ apt-get update; apt-get install -y parallel
 
 ### Run Post-processing
 
-To perform post-processing and generate final evaluation results for pure MSL, pure DBL, pure MSL ensemble, and pure DBL ensembles, use:
+To perform post-processing and generate final evaluation results for pure MSL, pure DBL, pure MSL ensemble, and pure DBL ensemble, use:
 
 ```
 bash run_postprocessing_2.sh
