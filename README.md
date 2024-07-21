@@ -119,7 +119,7 @@ nnUNet_train 3d_fullres TRAINER TASK 0 --npz -p nnUNetPlans_FabiansResUNet_v2.1
 
 #### Generate Predictions and Create Self-Training Dataset:
 
-For the experiments in the MSCSA paper, an additional Self-Training scheme is conducted using 300 hidden MRIs and pseudo-masks generated from the models of Default, DTK10, and Res U-Net schemes. To generate the Self-Training Dataset, follow these steps in the project root directory after completing the 5-fold cross-validation training of the Default, DTK10, and Res U-Net schemes on the default dataset:
+For the experiments in the MSCSA paper, an additional Self-Training scheme is conducted using 300 hidden MRIs and pseudo-masks generated from the MSCSA models of Default, DTK10, and Res U-Net schemes. To generate the Self-Training Dataset, follow these steps in the project root directory after completing the 5-fold cross-validation training of the Default, DTK10, and Res U-Net schemes on the default dataset:
 
 ```
 bash predict.sh
