@@ -70,7 +70,7 @@ Ensure to update the `TASK_ID` in `plan.sh`. The `TASK_ID` specifies the dataset
 nnUNet_plan_and_preprocess -t TASK_ID --verify_dataset_integrity -pl3d ExperimentPlanner3DFabiansResUNet_v21 -pl2d None
 ```
 
-After finished experiment planning, please copy the split configuration of the size-balanced 5-fold cross-validation to the preprocessed dataset folder by the following command:
+After completing experiment planning, please copy the split configuration of the size-balanced 5-fold cross-validation to the preprocessed dataset folder using the following command:
 
 ```
 cp splits_final.pkl /opt/algorithm/preprocessed/TASK/
@@ -80,11 +80,11 @@ The candidates of the 'TASK' folder are listed below:
 
 #### Task candidates:
 
-Dataset  | Task
----- | ----- 
-Default  | `Task100_ATLAS_v2` 
-MSL  | `Task104_ATLAS_v2_Multilabel` 
-DBL  | `Task110_ATLAS_v2_TwoDistance` 
+Dataset  | Task ID | Task
+---- | ----- | ----- 
+Default  | 100 | `Task100_ATLAS_v2` 
+MSL  | 104 | `Task104_ATLAS_v2_Multilabel` 
+DBL  | 110 | `Task110_ATLAS_v2_TwoDistance` 
 
 
 ### Model Training
@@ -95,7 +95,7 @@ For model training, run the following command:
 bash train.sh
 ```
 
-Ensure to update the `TRAINER` and `TASK` in `train.sh`. The `Fold` can be 0 to 5 for each run of 5-fold cross-validation. The candidates for trainers are listed below:
+Ensure to update the `TRAINER`, `TASK`, and `Fold` in `train.sh`. The `Fold` can be 0 to 5 for each run of 5-fold cross-validation. The candidates for trainers are listed below:
 
 #### Trainer candidates for Baselines and MSCSA models:
 
