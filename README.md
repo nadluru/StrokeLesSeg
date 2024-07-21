@@ -58,13 +58,13 @@ python distance_transform.py
 
 ### Experiment Planning
 
-Before start training, some pre-processing are required. Please run the following command for experiment planning. Make sure to update the `TASK_ID` in `plan.sh`. The `TASK_ID` specifies the dataset to be preprocessed. Specifically, `100`, `104`, and `110` corresponds the the default, MSL and DBL datasets, respectively.
+Before starting training, some pre-processing is required. Please run the following command for experiment planning:
 
 ```
 bash plan.sh
 ```
 
-Additionally, for preprocessing for Res U-Net schemes, update the last command in `plan.sh` with the following one:
+Ensure to update the `TASK_ID` in `plan.sh`. The `TASK_ID` specifies the dataset to be preprocessed. Specifically, `100`, `104`, and `110` correspond to the default, MSL, and DBL datasets, respectively. Additionally, for preprocessing for Res U-Net schemes, update the last command in `plan.sh` with the following:
 
 ```
 nnUNet_plan_and_preprocess -t TASK_ID --verify_dataset_integrity -pl3d ExperimentPlanner3DFabiansResUNet_v21 -pl2d None
@@ -72,13 +72,15 @@ nnUNet_plan_and_preprocess -t TASK_ID --verify_dataset_integrity -pl3d Experimen
 
 ### Model Training
 
-For model training, run the following command. Make sure to update the `TRAINER` and `TASK` in `train.sh`, The candidates of the trainers and tasks are listed below.
+For model training, run the following command:
 
 ```
 bash train.sh
 ```
 
-Trainer candidates for baselines and MSCSA models:
+Ensure to update the `TRAINER` and `TASK` in `train.sh`, The candidates for trainers and tasks are listed below:
+
+#### Trainer candidates for Baselines and MSCSA models:
 
  Scheme  | Baseline Trainer  | MSCSA Trainer
  ---- | ----- | ------ 
@@ -87,7 +89,7 @@ Trainer candidates for baselines and MSCSA models:
  DTK10  | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10` | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10_MSCSA_Depth_1_SGD`
  Res U-Net | `nnUNetTrainerV2_ResencUNet_DA3` | `nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3`
 
-Task candidates:
+#### Task candidates:
 
 Dataset  | Task
 ---- | ----- 
@@ -95,7 +97,7 @@ Default  | `Task100_ATLAS_v2`
 MSL  | `Task104_ATLAS_v2_Multilabel` 
 DBL  | `Task110_ATLAS_v2_TwoDistance` 
 
-Additionally, for Res U-Net schemes, update the last command in `train.sh` with the following one:
+Additionally, for Res U-Net schemes, update the last command in `train.sh` with the following:
 
 ```
 nnUNet_train 3d_fullres TRAINER TASK 0 --npz -p nnUNetPlans_FabiansResUNet_v2.1
