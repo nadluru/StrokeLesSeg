@@ -58,23 +58,37 @@ python distance_transform.py
 
 ### Experiment Planning
 
-Before start training, some pre-processing are required. Please create a bash script named `plan.sh` with the following commands and execute it.
+Before start training, some pre-processing are required. Please run the following command for experiment planning. Make sure to update the `TASK_ID` in `plan.sh`. The `TASK_ID` specifies the dataset to be preprocessed. Specifically, `100`, `104`, and `110` corresponds the the default, MSL and DBL datasets, respectively.
 
 ```
-export nnUNet_raw_data_base='/src/workspace/atlasv2/raw'
-export nnUNet_preprocessed='preprocessed'
-export RESULTS_FOLDER='/src/workspace/atlasv2/results'
-
-nnUNet_plan_and_preprocess -t TASK_ID --verify_dataset_integrity
+bash plan.sh
 ```
-
-The `TASK_ID` specifies the dataset to be preprocessed. Specifically, `100`, `104`, and `110` corresponds the the default, MSL and DBL datasets, respectively.
 
 Additionally, for preprocessing for Res U-Net schemes, update the last command in `plan.sh` with the following one:
 
 ```
 nnUNet_plan_and_preprocess -t TASK_ID --verify_dataset_integrity -pl3d ExperimentPlanner3DFabiansResUNet_v21 -pl2d None
 ```
+
+### Model Training
+
+For model training, run the following command. Make sure to update the `TRAINER` and `TASK` in `train.sh`, The candidates of the trainers and tasks are listed below.
+
+```
+bash train.sh
+```
+
+Trainer candidates for baselines and MSCSA models:
+Default: `nnUNetTrainerV2` and `nnUNetTrainerV2_MSCSA_Depth_1_SG`
+DTK10: 
+
+Additionally, for preprocessing for Res U-Net schemes, update the last command in `train.sh` with the following one:
+
+```
+nnUNet_train 3d_fullres TRAINER TASK 0 --npz -p nnUNetPlans_FabiansResUNet_v2.1
+```
+
+
 
 
 
