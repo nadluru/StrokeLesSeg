@@ -1,5 +1,5 @@
-# ATLAS-R2-Docker-Submission (Team CTRL)
-The docker submission of team CTRL for ATLAS R2.0 (Anatomical Tracings of Lesions After Stroke Segmentation Challenge). The source code for the algorithm container, generated with evalutils version 0.3.1.
+# Stroke Lesion Segmentation on Anatomical Tracings of Lesions After Stroke Segmentation (ATLAS) V2.0 Dataset
+The repository is developed from the [submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission) of Team CTRL in the 2022 MICCAI ATLAS Challenge.
 
 [Paper](https://arxiv.org/abs/2211.15486) | [Weights](#model)
 
