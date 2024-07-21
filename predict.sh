@@ -4,7 +4,6 @@
 export nnUNet_raw_data_base='atlasv2/raw'
 export nnUNet_preprocessed='/opt/algorithm/preprocessed'
 export RESULTS_FOLDER='atlasv2/results/'
-export CUDA_VISIBLE_DEVICES=7
 
 NNUNet_FOLDER="nnUNet/nnunet/"
 NNUNet_DATA_FOLDER="atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/imagesTs"
