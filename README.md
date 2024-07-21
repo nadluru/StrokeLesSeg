@@ -2,7 +2,9 @@
 This repository is based on the [submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission) by Team CTRL in the 2022 MICCAI ATLAS Challenge.
 
 This repository includes the implementation of the following papers:
+
 Segmenting Small Stroke Lesions with Novel Labeling Strategies (MSLDBL)
+
 Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention (MSCSA)
 
 ## Docker Environment
