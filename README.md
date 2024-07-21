@@ -87,7 +87,7 @@ Ensure to update the `TRAINER` and `TASK` in `train.sh`. The `Fold` can be 0 to 
  Default  | `nnUNetTrainerV2` | `nnUNetTrainerV2_MSCSA_Depth_1_SGD`
  Focal  | `nnUNetTrainerV2_Focal` | `nnUNetTrainerV2_MSCSA_Depth_1_Focal`
  DTK10  | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10` | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10_MSCSA_Depth_1_SGD`
- Res U-Net | `nnUNetTrainerV2_ResencUNet_DA3` | `nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3`
+ Res UNet | `nnUNetTrainerV2_ResencUNet_DA3` | `nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3`
 
 #### Task candidates:
 
