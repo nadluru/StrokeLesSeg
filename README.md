@@ -124,7 +124,8 @@ For the experiments in the MSCSA paper, an additional Self-Training scheme is co
 ```
 bash predict.sh
 cp -r atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/ atlasv2/raw/nnUNet_raw_data/Task103_ATLAS_v2_Self_Training/
-python convert_st.py
+cp predictions/ensemble/*.gz atlasv2/raw/nnUNet_raw_data/Task103_ATLAS_v2_Self_Training/labelsTr/
+cp atlasv2/raw/nnUNet_raw_data/Task103_ATLAS_v2_Self_Training/imagesTs*.gz atlasv2/raw/nnUNet_raw_data/Task103_ATLAS_v2_Self_Training/imagesTs/
 ```
 
 This will prepare the dataset for the Self-Training scheme with a Task ID of 103 and a Task Folder of Task103_ATLAS_v2_Self_Training.
