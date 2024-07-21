@@ -230,4 +230,4 @@ If the code is useful for your research, please consider citing our paper:
 ```
 
 ## Acknowledgments
-We thank the Applied Computer Vision Lab (ACVL) for developing and maintaining [nnU-Net](https://github.com/MIC-DKFZ/nnUNet), challenge organization team for releasing [ATLAS R2.0 Dataset](https://atlas.grand-challenge.org/ATLAS/), and Team CTRL for releasing their code for [docker submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission).
+We thank the Applied Computer Vision Lab (ACVL) for developing and maintaining [nnU-Net](https://github.com/MIC-DKFZ/nnUNet), challenge organization team for releasing [ATLAS R2.0 Dataset](https://atlas.grand-challenge.org/ATLAS/), and Team CTRL for releasing their code for [Docker submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission).
