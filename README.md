@@ -25,6 +25,14 @@ export RESULTS_FOLDER='atlasv2/results/'
 
 ## Dataset Preparation
 
+### Default dataset
+
+The default dataset can be created from the unzipped ATLAS v2.0 dataset using the following command. Before running it, please make use the change the input path in `convert.py` accordingly.
+
+```
+python convert.py
+```
+
 
 
 ## Model Weights <span id="model"></span>
