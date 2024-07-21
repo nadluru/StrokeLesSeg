@@ -83,11 +83,17 @@ Trainer candidates for baselines and MSCSA models:
  Scheme  | Baseline Trainer  | MSCSA Trainer
  ---- | ----- | ------ 
  Default  | `nnUNetTrainerV2` | `nnUNetTrainerV2_MSCSA_Depth_1_SGD`
- Focal  | `nnUNetTrainerV2_Focal` | -
- 
+ Focal  | `nnUNetTrainerV2_Focal` | `nnUNetTrainerV2_MSCSA_Depth_1_Focal`
+ DTK10  | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10` | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10_MSCSA_Depth_1_SGD`
+ Res U-Net | `nnUNetTrainerV2_ResencUNet_DA3` | `nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3`
 
-Default:  and  \\
-DTK10: 
+Task candidates:
+
+Dataset  | Task
+---- | ----- 
+Default  | `Task100_ATLAS_v2` 
+Focal  | `Task104_ATLAS_v2_Multilabel` 
+DTK10  | `Task110_ATLAS_v2_TwoDistance` 
 
 Additionally, for preprocessing for Res U-Net schemes, update the last command in `train.sh` with the following one:
 
