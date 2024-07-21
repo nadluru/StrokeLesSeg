@@ -70,6 +70,23 @@ Ensure to update the `TASK_ID` in `plan.sh`. The `TASK_ID` specifies the dataset
 nnUNet_plan_and_preprocess -t TASK_ID --verify_dataset_integrity -pl3d ExperimentPlanner3DFabiansResUNet_v21 -pl2d None
 ```
 
+After finished experiment planning, please copy the split configuration of the size-balanced 5-fold cross-validation to the preprocessed dataset folder by the following command:
+
+```
+cp splits_final.pkl /opt/algorithm/preprocessed/TASK/
+```
+
+The candidates of the 'TASK' folder are listed below:
+
+#### Task candidates:
+
+Dataset  | Task
+---- | ----- 
+Default  | `Task100_ATLAS_v2` 
+MSL  | `Task104_ATLAS_v2_Multilabel` 
+DBL  | `Task110_ATLAS_v2_TwoDistance` 
+
+
 ### Model Training
 
 For model training, run the following command:
@@ -78,7 +95,7 @@ For model training, run the following command:
 bash train.sh
 ```
 
-Ensure to update the `TRAINER` and `TASK` in `train.sh`. The `Fold` can be 0 to 5 for each run of 5-fold cross-validation. The candidates for trainers and tasks are listed below:
+Ensure to update the `TRAINER` and `TASK` in `train.sh`. The `Fold` can be 0 to 5 for each run of 5-fold cross-validation. The candidates for trainers are listed below:
 
 #### Trainer candidates for Baselines and MSCSA models:
 
@@ -88,14 +105,6 @@ Ensure to update the `TRAINER` and `TASK` in `train.sh`. The `Fold` can be 0 to 
  Focal  | `nnUNetTrainerV2_Focal` | `nnUNetTrainerV2_MSCSA_Depth_1_Focal`
  DTK10  | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10` | `nnUNetTrainerV2_800epochs_Loss_DiceTopK10_MSCSA_Depth_1_SGD`
  Res U\-Net | `nnUNetTrainerV2_ResencUNet_DA3` | `nnUNetTrainerV2_ResencUNet_MSCSA_Depth_1_DA3`
-
-#### Task candidates:
-
-Dataset  | Task
----- | ----- 
-Default  | `Task100_ATLAS_v2` 
-MSL  | `Task104_ATLAS_v2_Multilabel` 
-DBL  | `Task110_ATLAS_v2_TwoDistance` 
 
 Additionally, for Res U-Net schemes, update the last command in `train.sh` with the following:
 
