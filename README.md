@@ -5,10 +5,15 @@ This repository contains the implementation of the following papers:
 Segmenting Small Stroke Lesions with Novel Labeling Strategies
 Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention
 
-## Training
+## Docker Environment
 
 Our code is supposed to run in the docker environment. Before start, please create the docker image using the following command:
+
 `bash build.sh`
+
+## Dataset Preparation
+
+
 
 ## Model Weights <span id="model"></span>
 Download nnUNet model weights from [here](https://emckclac-my.sharepoint.com/:f:/g/personal/k21066681_kcl_ac_uk/EnR3LgIE5D5En1c2vSlzPkgBnzKJJ8Cly_2T56srvbu67A) and put them in `nnUNet_trained_models` folder.
