@@ -2,8 +2,8 @@
 This repository is based on the [submission](https://github.com/King-HAW/ATLAS-R2-Docker-Submission) by Team CTRL in the 2022 MICCAI ATLAS Challenge.
 
 This repository includes the implementation of the following papers:
-Segmenting Small Stroke Lesions with Novel Labeling Strategies
-Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention
+Segmenting Small Stroke Lesions with Novel Labeling Strategies (MSLDBL)
+Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention (MSCSA)
 
 ## Docker Environment
 
@@ -80,7 +80,7 @@ The candidates of the 'TASK' folder are listed below:
 
 #### Task candidates:
 
-Dataset  | Task ID | Task
+Dataset  | Task ID | Task Folder
 ---- | ----- | ----- 
 Default  | 100 | `Task100_ATLAS_v2` 
 MSL  | 104 | `Task104_ATLAS_v2_Multilabel` 
@@ -112,7 +112,31 @@ Additionally, for Res U-Net schemes, update the last command in `train.sh` with 
 nnUNet_train 3d_fullres TRAINER TASK 0 --npz -p nnUNetPlans_FabiansResUNet_v2.1
 ```
 
-###
+### Self-Training Scheme
+
+#### Generate Predictions and Create Self-Training Dataset:
+
+For the experiments in the MSCSA paper, an additional Self-Training scheme is conducted using 300 hidden MRIs and pseudo-masks generated from the models of Default, DTK10, and Res U-Net schemes. To generate the Self-Training Dataset, follow these steps after completing the 5-fold cross-validation training of the Default, DTK10, and Res U-Net schemes on the default dataset:
+
+```
+bash predict.sh
+cp -r atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/ atlasv2/raw/nnUNet_raw_data/Task103_ATLAS_v2_Self_Training/
+python convert_st.py
+```
+
+This will prepare the dataset for the Self-Training scheme with a Task ID of 103 and a Task Folder of Task103_ATLAS_v2_Self_Training.
+
+#### Experiment Planning:
+
+Next, perform the experiment planning for the Self-Training dataset. Since the split configuration for the size-balanced 5-fold cross-validation will be different for this scheme, update it using:
+
+```
+cp splits_final_2.pkl /opt/algorithm/preprocessed/Task103_ATLAS_v2_Self_Training/splits_final.pkl
+```
+
+#### Training the Self-Training Scheme:
+
+Finally, run the Self-Training scheme by executing `bash train.sh` again and setting `nnUNetTrainerV2` as the trainer.
 
 
 
