@@ -79,7 +79,8 @@ bash train.sh
 ```
 
 Trainer candidates for baselines and MSCSA models:
-Default: `nnUNetTrainerV2` and `nnUNetTrainerV2_MSCSA_Depth_1_SG`
+
+Default: `nnUNetTrainerV2` and `nnUNetTrainerV2_MSCSA_Depth_1_SG` \\
 DTK10: 
 
 Additionally, for preprocessing for Res U-Net schemes, update the last command in `train.sh` with the following one:
