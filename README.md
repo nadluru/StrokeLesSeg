@@ -30,6 +30,7 @@ export RESULTS_FOLDER='atlasv2/results/'
 To create the default dataset from the unzipped ATLAS v2.0 dataset, use the following command in the project root directory. Prior to running it, update the input path in `convert.py` as necessary:
 
 ```
+mkdir -p atlasv2/raw/nnUNet_raw_data/
 python convert.py
 ```
 
