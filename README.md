@@ -19,7 +19,7 @@ Our code customizes several default environment variables from nnUNet. Ensure to
 
 ```
 export nnUNet_raw_data_base='atlasv2/raw/'
-export nnUNet_preprocessed='preprocessed'
+export nnUNet_preprocessed='/opt/algorithm/preprocessed'
 export RESULTS_FOLDER='atlasv2/results/'
 ```
 
@@ -78,7 +78,7 @@ For model training, run the following command:
 bash train.sh
 ```
 
-Ensure to update the `TRAINER` and `TASK` in `train.sh`, The candidates for trainers and tasks are listed below:
+Ensure to update the `TRAINER` and `TASK` in `train.sh`. The `Fold` can be 0 to 5 for each run of 5-fold cross-validation. The candidates for trainers and tasks are listed below:
 
 #### Trainer candidates for Baselines and MSCSA models:
 
