@@ -9,7 +9,9 @@ Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention
 
 Our code is supposed to run in the docker environment. Before start, please create the docker image using the following command:
 
-`bash build.sh`
+```
+bash build.sh
+```
 
 ## Dataset Preparation
 
