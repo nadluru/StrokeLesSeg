@@ -13,6 +13,16 @@ Our code is supposed to run in the docker environment. Before start, please crea
 bash build.sh
 ```
 
+## Environment Variables
+
+Our code resets several default environment variables from nnUNet. Please make sure to set the following environment variables for each bash files you created.
+
+```
+export nnUNet_raw_data_base='atlasv2/raw/'
+export nnUNet_preprocessed='preprocessed'
+export RESULTS_FOLDER='atlasv2/results/'
+```
+
 ## Dataset Preparation
 
 
