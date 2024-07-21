@@ -19,7 +19,7 @@ Our code customizes several default environment variables from nnUNet. Ensure to
 
 ```
 export nnUNet_raw_data_base='atlasv2/raw/'
-export nnUNet_preprocessed='/opt/algorithm/preprocessed'
+export nnUNet_preprocessed='atlasv2/preprocessed'
 export RESULTS_FOLDER='atlasv2/results/'
 ```
 
@@ -27,7 +27,7 @@ export RESULTS_FOLDER='atlasv2/results/'
 
 ### Default Dataset
 
-To create the default dataset from the unzipped ATLAS v2.0 dataset, use the following command. Prior to running it, update the input path in `convert.py` as necessary:
+To create the default dataset from the unzipped ATLAS v2.0 dataset, use the following command in the project root directory. Prior to running it, update the input path in `convert.py` as necessary:
 
 ```
 python convert.py
@@ -35,7 +35,7 @@ python convert.py
 
 ### Multi-Size Labeling (MSL) Dataset
 
-After the default dataset is created. The MSL dataset can be generated using the following command:
+After the default dataset is created. The MSL dataset can be generated using the following command in the project root directory:
 
 ```
 cp -r atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/ atlasv2/raw/nnUNet_raw_data/Task104_ATLAS_v2_Multilabel/
@@ -45,7 +45,7 @@ python multilabel.py
 
 ### Distance-Based Labeling (DBL) Dataset
 
-To generate the DBL dataset after creating the default dataset, use the following commands:
+To generate the DBL dataset after creating the default dataset, use the following commands in the project root directory:
 
 ```
 cp -r atlasv2/raw/nnUNet_raw_data/Task100_ATLAS_v2/ atlasv2/raw/nnUNet_raw_data/Task110_ATLAS_v2_TwoDistance/
@@ -58,7 +58,7 @@ python distance_transform.py
 
 ### Experiment Planning
 
-Before starting training, some pre-processing is required. Please run the following command for experiment planning:
+Before starting training, some pre-processing is required. Please run the following command for experiment planning in the project root directory:
 
 ```
 bash plan.sh
@@ -70,10 +70,10 @@ Ensure to update the `TASK_ID` in `plan.sh`. The `TASK_ID` specifies the dataset
 nnUNet_plan_and_preprocess -t TASK_ID --verify_dataset_integrity -pl3d ExperimentPlanner3DFabiansResUNet_v21 -pl2d None
 ```
 
-After completing experiment planning, please copy the split configuration of the size-balanced 5-fold cross-validation to the preprocessed dataset folder using the following command:
+After completing experiment planning, please copy the split configuration of the size-balanced 5-fold cross-validation to the preprocessed dataset folder using the following command in the project root directory:
 
 ```
-cp splits_final.pkl /opt/algorithm/preprocessed/TASK/
+cp splits_final.pkl atlasv2/preprocessed/TASK/
 ```
 
 The candidates of the 'TASK' folder are listed below:
@@ -89,7 +89,7 @@ DBL  | 110 | `Task110_ATLAS_v2_TwoDistance`
 
 ### Model Training
 
-For model training, run the following command:
+For model training, run the following command  in the project root directory:
 
 ```
 bash train.sh
@@ -116,7 +116,7 @@ nnUNet_train 3d_fullres TRAINER TASK 0 --npz -p nnUNetPlans_FabiansResUNet_v2.1
 
 #### Generate Predictions and Create Self-Training Dataset:
 
-For the experiments in the MSCSA paper, an additional Self-Training scheme is conducted using 300 hidden MRIs and pseudo-masks generated from the models of Default, DTK10, and Res U-Net schemes. To generate the Self-Training Dataset, follow these steps after completing the 5-fold cross-validation training of the Default, DTK10, and Res U-Net schemes on the default dataset:
+For the experiments in the MSCSA paper, an additional Self-Training scheme is conducted using 300 hidden MRIs and pseudo-masks generated from the models of Default, DTK10, and Res U-Net schemes. To generate the Self-Training Dataset, follow these steps in the project root directory after completing the 5-fold cross-validation training of the Default, DTK10, and Res U-Net schemes on the default dataset:
 
 ```
 bash predict.sh
@@ -128,10 +128,10 @@ This will prepare the dataset for the Self-Training scheme with a Task ID of 103
 
 #### Experiment Planning:
 
-Next, perform the experiment planning for the Self-Training dataset. Since the split configuration for the size-balanced 5-fold cross-validation will be different for this scheme, update it using:
+Next, perform the experiment planning for the Self-Training dataset. Since the split configuration for the size-balanced 5-fold cross-validation will be different for this scheme, update it using the following command in the project root directory:
 
 ```
-cp splits_final_2.pkl /opt/algorithm/preprocessed/Task103_ATLAS_v2_Self_Training/splits_final.pkl
+cp splits_final_2.pkl atlasv2/preprocessed/Task103_ATLAS_v2_Self_Training/splits_final.pkl
 ```
 
 #### Training the Self-Training Scheme:
