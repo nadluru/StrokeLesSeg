@@ -54,6 +54,28 @@ python distance_transform.py
 ```
 
 
+## Training
+
+### Experiment Planning
+
+Before start training, some pre-processing are required. Please create a bash script named `plan.sh` with the following commands and execute it.
+
+```
+export nnUNet_raw_data_base='/src/workspace/atlasv2/raw'
+export nnUNet_preprocessed='preprocessed'
+export RESULTS_FOLDER='/src/workspace/atlasv2/results'
+
+nnUNet_plan_and_preprocess -t 1xx --verify_dataset_integrity
+```
+
+The `1xx` after `-t` specifies the dataset to be preprocessed. Specifically, `100`, `104`, and `110` corresponds the the default, MSL and DBL datasets, respectively.
+
+Additionally, for preprocessing for Res U-Net schemes, update the last command in `plan.sh` with the following one:
+
+```
+nnUNet_plan_and_preprocess -t 1xx --verify_dataset_integrity -pl3d ExperimentPlanner3DFabiansResUNet_v21 -pl2d None
+```
+
 
 
 ## Model Weights <span id="model"></span>
