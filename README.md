@@ -227,7 +227,15 @@ python gather_small.py -f FOLDER
 ## Citation
 If the code is useful for your research, please consider citing our paper:
 ```bibtex
-
+@misc{shang2024segmentingsmallstrokelesions,
+      title={Segmenting Small Stroke Lesions with Novel Labeling Strategies}, 
+      author={Liang Shang and Zhengyang Lou and Andrew L. Alexander and Vivek Prabhakaran and William A. Sethares and Veena A. Nair and Nagesh Adluru},
+      year={2024},
+      eprint={2408.02929},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2408.02929}, 
+}
 ```
 
 ## Acknowledgments
