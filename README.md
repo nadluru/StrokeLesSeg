@@ -3,9 +3,9 @@ This repository is based on the [submission](https://github.com/King-HAW/ATLAS-R
 
 This repository includes the implementation of the following papers:
 
-[MLCN 2024] Segmenting Small Stroke Lesions with Novel Labeling Strategies (MSLDBL) [[paper](https://link.springer.com/chapter/10.1007/978-3-031-78761-4_11)] [[arxiv](https://arxiv.org/abs/2408.02929)]
+**[MLCN 2024] Segmenting Small Stroke Lesions with Novel Labeling Strategies (MSLDBL) [[paper](https://link.springer.com/chapter/10.1007/978-3-031-78761-4_11)] [[arxiv](https://arxiv.org/abs/2408.02929)]**
 
-[ISBI 2025] Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention (MSCSA) [paper] [[arxiv](https://arxiv.org/abs/2501.15423)]
+**[ISBI 2025] Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention (MSCSA) [paper] [[arxiv](https://arxiv.org/abs/2501.15423)]**
 
 ## Docker Environment
 
