@@ -227,14 +227,19 @@ python gather_small.py -f FOLDER
 ## Citation
 If the code is useful for your research, please consider citing our paper:
 ```bibtex
-@misc{shang2024segmentingsmallstrokelesions,
-      title={Segmenting Small Stroke Lesions with Novel Labeling Strategies}, 
-      author={Liang Shang and Zhengyang Lou and Andrew L. Alexander and Vivek Prabhakaran and William A. Sethares and Veena A. Nair and Nagesh Adluru},
-      year={2024},
-      eprint={2408.02929},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2408.02929}, 
+@inproceedings{shang2025segmenting,
+  title={Segmenting small stroke lesions with novel labeling strategies},
+  author={Shang, Liang and Lou, Zhengyang and Alexander, Andrew L and Prabhakaran, Vivek and Sethares, William A and Nair, Veena A and Adluru, Nagesh},
+  booktitle={International Workshop on Machine Learning in Clinical Neuroimaging},
+  pages={113--122},
+  year={2025},
+  organization={Springer}
+}
+@article{shang2025stroke,
+  title={Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention},
+  author={Shang, Liang and Sethares, William A and Adluru, Anusha and Alexander, Andrew L and Prabhakaran, Vivek and Nair, Veena A and Adluru, Nagesh},
+  journal={arXiv preprint arXiv:2501.15423},
+  year={2025}
 }
 ```
 
