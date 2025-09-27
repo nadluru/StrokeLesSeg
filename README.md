@@ -205,27 +205,6 @@ python run_parallel.py -f results_mscsa
 ```
 
 
-## Results Gathering
-
-### Gather Results for Entire Dataset:
-
-To compile results for the entire dataset, run:
-
-```
-python gather_postprocessing.py -f FOLDER
-```
-
-Here, `FOLDER` specifies the directory containing the `.txt` evaluation results for each method.
-
-### Gather Results for Small Lesion Subset:
-
-To compile results for all schemes on the small lesion subset, use:
-
-```
-python gather_small.py -f FOLDER
-```
-
-
 ## Citation
 If the code is useful for your research, please consider citing our paper:
 ```bibtex
@@ -237,11 +216,13 @@ If the code is useful for your research, please consider citing our paper:
   year={2025},
   organization={Springer}
 }
-@article{shang2025stroke,
-  title={Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention},
+@inproceedings{shang2025stroke,
+  title={Stroke Lesion Segmentation Using Multi-Stage Cross-Scale Attention},
   author={Shang, Liang and Sethares, William A and Adluru, Anusha and Alexander, Andrew L and Prabhakaran, Vivek and Nair, Veena A and Adluru, Nagesh},
-  journal={arXiv preprint arXiv:2501.15423},
-  year={2025}
+  booktitle={2025 IEEE 22nd International Symposium on Biomedical Imaging (ISBI)},
+  pages={1--5},
+  year={2025},
+  organization={IEEE}
 }
 ```
 
