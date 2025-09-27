@@ -7,6 +7,8 @@ This repository includes the implementation of the following papers:
 
 **[ISBI 2025] Stroke Lesion Segmentation using Multi-Stage Cross-Scale Attention (MSCSA) [[paper](https://ieeexplore.ieee.org/document/10980930)] [[arxiv](https://arxiv.org/abs/2501.15423)]**
 
+**[PRL] Plug and Play Labeling Strategies for Boosting Small Brain Lesion Segmentation [Under Review]**
+
 ## Docker Environment
 
 The code is designed to run in a Docker environment. To get started, create the Docker image using the following command:
